@@ -1,85 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>ActBayan — Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <div id="form">  
-            <a id="emtog" onclick="showInput('i1')" class="toggle-link active"><p>Email Address</p></a><a id="pntog" onclick="showInput('i2')" class="toggle-link"><p>Phone Number</p></a>
+        <div id="form">
+            <div style="width:100%">
 
-            <!--Email Registration Form -->
-            <form id="emailForm" method="POST" style="display:block;">
-    <div class="field-item">
-        <label for="e">Email Address:</label>
-        <input id="e" type="email" name="e" placeholder="Enter your email address" required>
-    </div>
+                <h2>ActBayan</h2>
+                <p style="font-size:0.82rem; color:#888; margin-top:4px; margin-bottom:20px;">Create your account</p>
 
-    <div class="field-item">
-        <label for="pass1">Password</label>
-        <input type="password" name="pass" id="pass1" required>
-    </div>
+                <!-- Toggle -->
+                <div style="margin-bottom:20px;">
+                    <a id="emtog" onclick="showInput('i1')" class="toggle-link active">Email</a>
+                    <a id="pntog" onclick="showInput('i2')" class="toggle-link">Phone</a>
+                </div>
 
-    <div class="field-item">
-        <label for="conpass1">Confirm Password</label>
-        <input type="password" name="conpass" id="conpass1" required>
-    </div>
+                {% if error %}
+                <p style="color:#c0392b; font-size:0.82rem; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.25); border-radius:8px; padding:8px 12px; margin-bottom:14px; text-align:left;">{{ error }}</p>
+                {% endif %}
 
-    <div class="field-item">
-        <input type="submit" value="Register">
-    </div>
-</form>
+                <!-- Email Form -->
+                <form id="emailForm" method="POST" style="display:block;">
+                    <div class="list-down">
+                        <div class="field-item">
+                            <label for="e">Email Address</label>
+                            <input id="e" type="email" name="e" placeholder="you@example.com" />
+                        </div>
+                        <div class="field-item">
+                            <label for="pass1">Password</label>
+                            <input type="password" name="pass" id="pass1" placeholder="••••••••" />
+                        </div>
+                        <div class="field-item">
+                            <label for="conpass1">Confirm Password</label>
+                            <input type="password" name="conpass" id="conpass1" placeholder="••••••••" />
+                        </div>
+                        <button type="submit" id="lin">Create Account</button>
+                    </div>
+                </form>
 
-            <!--Phone Registration Form -->
-            <form id="phoneForm" method="POST" style="display:none;">
-    <div class="field-item">
-        <label for="pn">Phone Number:</label>
-        <input id="pn" type="text" name="pn" placeholder="Enter your phone number" required>
-    </div>
+                <!-- Phone Form -->
+                <form id="phoneForm" method="POST" style="display:none;">
+                    <div class="list-down">
+                        <div class="field-item">
+                            <label for="pn">Phone Number</label>
+                            <input id="pn" type="text" name="pn" placeholder="+63 912 345 6789" />
+                        </div>
+                        <div class="field-item">
+                            <label for="pass2">Password</label>
+                            <input type="password" name="pass" id="pass2" placeholder="••••••••" />
+                        </div>
+                        <div class="field-item">
+                            <label for="conpass2">Confirm Password</label>
+                            <input type="password" name="conpass" id="conpass2" placeholder="••••••••" />
+                        </div>
+                        <button type="submit" id="lin">Create Account</button>
+                    </div>
+                </form>
 
-    <div class="field-item">
-        <label for="pass2">Password</label>
-        <input type="password" name="pass" id="pass2" required>
-    </div>
+                <p style="margin-top:18px; font-size:0.83rem; color:#888; text-align:center;">
+                    Already have an account? <a href="{{ url_for('login') }}" style="color:#c0392b; font-weight:600; text-decoration:none;">Login here</a>
+                </p>
 
-    <div class="field-item">
-        <label for="conpass2">Confirm Password</label>
-        <input type="password" name="conpass" id="conpass2" required>
-    </div>
-
-    <div class="field-item">
-        <input type="submit" value="Register">
-    </div>
-</form>
-        <p>Already Have an Account?, <a href="{{ url_for('login') }}">Login Here</a></p>
-
+            </div>
         </div>
     </div>
-    <script>
-      function showInput(type) {
-    let emailForm = document.getElementById("emailForm");
-    let phoneForm = document.getElementById("phoneForm");
-    let emailToggle = document.getElementById("emtog");
-    let phoneToggle = document.getElementById("pntog");
-    let emailField = document.getElementById("e");
-    let phoneField = document.getElementById("pn");
 
-    if (type === "i1") {
-        emailForm.style.display = "block";
-        phoneForm.style.display = "none";
-        phoneToggle.classList.remove("active");
-        emailToggle.classList.add("active");
-        phoneField.value = '';
-    } else if (type === "i2") {
-        emailForm.style.display = "none";
-        phoneForm.style.display = "block";
-        emailToggle.classList.remove("active");
-        emailField.value = '';
-    }
-    
-}
+    <script>
+        function showInput(type) {
+            let emailForm = document.getElementById("emailForm");
+            let phoneForm = document.getElementById("phoneForm");
+            let emailToggle = document.getElementById("emtog");
+            let phoneToggle = document.getElementById("pntog");
+            let emailField = document.getElementById("e");
+            let phoneField = document.getElementById("pn");
+
+            if (type === "i1") {
+                emailForm.style.display = "block";
+                phoneForm.style.display = "none";
+                phoneToggle.classList.remove("active");
+                emailToggle.classList.add("active");
+                phoneField.value = '';
+            } else {
+                emailForm.style.display = "none";
+                phoneForm.style.display = "block";
+                emailToggle.classList.remove("active");
+                phoneToggle.classList.add("active");
+                emailField.value = '';
+            }
+        }
     </script>
 </body>
 </html>
