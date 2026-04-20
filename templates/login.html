@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+
+        <div id="form">  
+            <form action="/register" method="post">
+            <a id="emtog" onclick="showInput('i1')" class="toggle-link active"><p>Email Address</p></a><a id="pntog" onclick="showInput('i2')" class="toggle-link"><p>Phone Number</p></a>   
+            <div id="fild">
+                <div id="ef" class="field-item"><label for="e">Email Address:</label><input id="e" type="email" name="e" placeholder="Enter your email address" required></div>
+                <div id="pnf" class="field-item"><label for="pn">Phone Number:</label><input id="pn" type="number" name="pb" placeholder="Enter your Phone Number" required></div>
+            </div>
+            <div id="confield" class="list-down">
+                <div class="field-item">
+                    <label for="pass">Password</label>
+                    <input type="password" name="pass" id="pass" placeholder="Enter your password" required>
+                </div>
+                <div class="field-item">
+                    <label for="conpass">Confirm Password</label>
+                    <input type="password" name="conpass" id="conpass" placeholder="Repeat password" required>
+                </div>
+                {% if error %}{{ error }}{% endif %}
+                <div class="field-item">
+                    <input id="but" type="submit" value="Register">
+                </div>
+            </div>
+            </form><br>
+        </div>
+    </div>
+    <script>
+        function showInput(type) {
+            let emailField = document.getElementById("ef");
+            let phoneField = document.getElementById("pnf");
+
+            let emailInput = document.getElementById("e");
+            let phoneInput = document.getElementById("pn");
+
+            let emailToggle = document.getElementById("emtog");
+            let phoneToggle = document.getElementById("pntog");
+
+            if (type === "i1") {
+                emailField.style.display = "block";
+                phoneField.style.display = "none";
+                emailInput.required = true;
+                phoneInput.required = false;
+                phoneInput.value = '';
+                emailToggle.classList.add("active");
+                phoneToggle.classList.remove("active");
+            } else if (type === "i2") {
+                emailField.style.display = "none";
+                phoneField.style.display = "block";
+                emailInput.required = false;
+                phoneInput.required = true;
+                emailInput.value = '';
+                phoneToggle.classList.add("active");
+                emailToggle.classList.remove("active");
+            }
+        }
+        // Initial
+        showInput('i1');
+    </script>
+</body>
+</html>

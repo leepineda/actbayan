@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div id="form">  
+            <a id="emtog" onclick="showInput('i1')" class="toggle-link active"><p>Email Address</p></a><a id="pntog" onclick="showInput('i2')" class="toggle-link"><p>Phone Number</p></a>
+
+            <!--Email Registration Form -->
+            <form id="emailForm" method="POST" style="display:block;">
+    <div class="field-item">
+        <label for="e">Email Address:</label>
+        <input id="e" type="email" name="e" placeholder="Enter your email address" required>
+    </div>
+
+    <div class="field-item">
+        <label for="pass1">Password</label>
+        <input type="password" name="pass" id="pass1" required>
+    </div>
+
+    <div class="field-item">
+        <label for="conpass1">Confirm Password</label>
+        <input type="password" name="conpass" id="conpass1" required>
+    </div>
+
+    <div class="field-item">
+        <input type="submit" value="Register">
+    </div>
+</form>
+
+            <!--Phone Registration Form -->
+            <form id="phoneForm" method="POST" style="display:none;">
+    <div class="field-item">
+        <label for="pn">Phone Number:</label>
+        <input id="pn" type="text" name="pn" placeholder="Enter your phone number" required>
+    </div>
+
+    <div class="field-item">
+        <label for="pass2">Password</label>
+        <input type="password" name="pass" id="pass2" required>
+    </div>
+
+    <div class="field-item">
+        <label for="conpass2">Confirm Password</label>
+        <input type="password" name="conpass" id="conpass2" required>
+    </div>
+
+    <div class="field-item">
+        <input type="submit" value="Register">
+    </div>
+</form>
+        </div>
+    </div>
+    <script>
+      function showInput(type) {
+    let emailForm = document.getElementById("emailForm");
+    let phoneForm = document.getElementById("phoneForm");
+    let emailToggle = document.getElementById("emtog");
+    let phoneToggle = document.getElementById("pntog");
+    let emailField = document.getElementById("e");
+    let phoneField = document.getElementById("pn");
+
+    if (type === "i1") {
+        emailForm.style.display = "block";
+        phoneForm.style.display = "none";
+        phoneToggle.classList.remove("active");
+        emailToggle.classList.add("active");
+        phoneField.value = '';
+    } else if (type === "i2") {
+        emailForm.style.display = "none";
+        phoneForm.style.display = "block";
+        emailToggle.classList.remove("active");
+        emailField.value = '';
+    }
+    
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+
+    <div class="topbar">
+        <h1>Actbayan<span style="color: red">.</span></h1>
+    </div>
+
+    
+    <div id="sb">
+    <section class="sidebar">
+        <div id="listdown">
+         <button onclick="showPage('p1')"><a><img src="../static/img/4.png"><p>Home</p></a></button>
+         <button onclick="showPage('p2')"><a><img src="../static/img/4.png"><p>Home</p></a></button>
+         <button onclick="showPage('p3')"><a><img src="../static/img/4.png"><p>Home</p></a></button>
+         <button onclick="showPage('p4')"><a><img src="../static/img/4.png"><p>Home</p></a></button>
+         <button onclick="showPage('p5')"><a><img src="../static/img/4.png"><p>Home</p></a></button>
+         </div>
+    </section>
+    <main class="content">
+
+    <div id="homepage">
+    <div id="line1"><img src="../static/img/1.png"><h1>Kamusta, USER<span>.</span></h1>
+    <div id="dateloc">
+    <h3>DATE:</h3>
+    <h3>LOCATION:</h3>
+    </div></div>
+    <div id="weather"><img src="../static/img/6.png">
+    <div id="right"><h2>--C</h2>
+    <p>Loading...</p>
+    <p>Nueva Ecija</p></div>
+    </div>
+      <div id="pindutan">
+    <button>Concerns</button>
+    <button>Concerns</button>
+    <button>Concerns</button>
+    </div>
+
+    <div class="ann">
+    <h1>Announcements</h1>
+    <div id="anbg"><img src="../static/img/annbg.png"></div>
+    </div>
+
+    </div>
+    </main>
+
+
+    <script>
+function showPage(pageId) {
+    document.getElementById('homepage').style.display = 'block';
+}
+    </script>
+</body>
+</html>
