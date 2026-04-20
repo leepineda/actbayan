@@ -1,5 +1,14 @@
 * {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* BACKGROUND */
+body {
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0ece4;
 }
 
 body::before {
@@ -9,75 +18,159 @@ body::before {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url("../static/img/mamerta.png");
+    background-image: url("/static/img/mamerta.png");
     background-size: cover;
     background-repeat: no-repeat;
-    opacity: 0.7;
+    background-position: center;
+    opacity: 0.25;
     z-index: -1;
 }
 
-body{
-    background-image: url("../static/img/mamerta.png");
-    background-size: cover;
-    background-repeat: no-repeat;
-
-}
-
-
-/* LOGIN */
+/* LOGIN / REGISTER */
 .container {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     height: 100vh;
+    padding-right: 8%;
 }
 
 #form {
-    background-color: grey;
-    border-radius: 100px;
-    width: 30%;
-    height: 80vh;
-    margin-left: 60%;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.6);
+    width: 360px;
+    padding: 48px 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
 }
 
-#lin {
-    padding-left: 60px;
-    padding-right: 60px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border-radius: 10px;
-    background-color: red;
-    color: white;
+#form h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+}
+
+#form > div > div {
+    margin-bottom: 20px;
+}
+
+/* LOGIN / REGISTER TOGGLE */
+.toggle-link {
+    text-decoration: none;
+    color: #888;
+    margin: 0 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding-bottom: 3px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.toggle-link:hover {
+    color: #333;
+}
+
+.toggle-link.active {
+    font-weight: 700;
+    color: #c0392b;
+    border-bottom: 2px solid #c0392b;
+}
+
+/* FORM FIELDS */
+.list-down {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.field-item {
+    width: 100%;
+    text-align: left;
 }
 
 #ali {
     text-align: left;
 }
 
-.toggle-link {
-    text-decoration: none;
-    color: black;
-    margin: 0 10px;
+.field-item label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #555;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.field-item input {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.field-item input:focus {
+    border-color: #c0392b;
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.1);
+    background: #fff;
+}
+
+/* SUBMIT BUTTON */
+#lin {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background-color: #c0392b;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 4px;
 }
 
-.toggle-link:hover {
-    color: #666;
+#lin:hover {
+    background-color: #a93226;
 }
 
-.toggle-link.active {
-    font-weight: bold;
-    color: red;
+#lin:active {
+    transform: scale(0.98);
 }
 
-/* HOMEPAGE */ 
+/* ERROR MESSAGE */
+.error-msg, p[style*="color: red"] {
+    background: rgba(192,57,43,0.08);
+    border: 1px solid rgba(192,57,43,0.25);
+    border-radius: 8px;
+    color: #c0392b;
+    font-size: 0.82rem;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+}
 
+/* HOMEPAGE */
 span {
-    color: red;
+    color: #c0392b;
 }
 
 .topbar {
@@ -96,23 +189,18 @@ span {
 
 #sb {
     display: grid;
-
-    grid-template-areas:
-        'left-sidebar main-content'
-        ;
+    grid-template-areas: 'left-sidebar main-content';
     grid-template-columns: 100px 1fr;
 }
 
-#sb > .content{
-    grid-area:main-content;
+#sb > .content {
+    grid-area: main-content;
     margin-top: 100px;
-    
 }
 
-#sb > .sidebar{
-    grid-area:left-sidebar;
+#sb > .sidebar {
+    grid-area: left-sidebar;
     background: yellow;
-
 }
 
 .sidebar {
@@ -135,8 +223,7 @@ span {
     flex-direction: column;
 }
 
-#homepage
-{
+#homepage {
     width: 100%;
     display: flex;
     gap: 50%;
@@ -150,9 +237,9 @@ span {
 }
 
 #but {
-        background-color: #8B0000;
-        border: none;
-        border-radius: 10px;
+    background-color: #8B0000;
+    border: none;
+    border-radius: 10px;
 }
 
 .ann {
@@ -163,72 +250,36 @@ span {
     flex-direction: column;
 }
 
-
-/* icons */
-
 #listdown {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
-
-    button {
-        design: none;
-        background: none;
-        border: none;
-        width: 100%;
-        padding: 20px;
-        a {
-        p {
-            align-items: center;
-        }
-
-        img {
-            width: 50px;
-            height: 50px;
-        }
-    }
-    }
-
-    
 }
 
-.list-down {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-}
-
-.field-item {
-    width: 80%;
-    text-align: center;
-}
-
-.field-item label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.field-item input {
+#listdown button {
+    background: none;
+    border: none;
     width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+    padding: 20px;
 }
 
-@media (max-width:480px)  {
+#listdown img {
+    width: 50px;
+    height: 50px;
+}
 
-    /* LOGIN */
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .container {
+        justify-content: center;
+        padding-right: 0;
+        padding: 1rem;
+    }
+
     #form {
-        width: 90%;
-        margin-left: 0;
+        width: 100%;
+        padding: 32px 24px;
     }
-
-    }
-
-
+}
