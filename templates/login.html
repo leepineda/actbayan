@@ -1,34 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ActBayan — Login</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
 </head>
 <body>
-    <div class="container">
-        <div id="form">  
-            <!-- Form -->
-            <form method="POST">
-    <div class="field-item">
-        <label for="e">Email Address/Phone Number:</label>
-        <input id="e" type="text" name="e" placeholder="Enter your email address or phone number" required>
-    </div>
 
-    <div class="field-item">
-        <label for="pass">Password</label>
-        <input type="password" name="pass" id="pass" required>
-    </div>
-    <div class="field-item">
-        <input type="submit" value="Login">
-    </div>
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
-</form>
-        <p>Don't Have an Account?, <a href="{{ url_for('register') }}">Register Here</a></p>
+  <div class="container">
+    <div id="form">
+      <div>
+
+        <h2>ActBayan</h2>
+        <br>
+
+        <div>
+          <a class="toggle-link active" href="/login">Login</a>
+          <a class="toggle-link" href="/register">Register</a>
         </div>
+        <br>
+
+        {% if error %}
+        <p style="color: red; font-size: 0.85rem; margin-bottom: 10px;">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/login">
+          <div class="list-down">
+
+            <div class="field-item" id="ali">
+              <label for="e">Email or Phone</label>
+              <input type="text" id="e" name="e" placeholder="Enter email or phone" />
+            </div>
+
+            <div class="field-item" id="ali">
+              <label for="pass">Password</label>
+              <input type="password" id="pass" name="pass" placeholder="Enter password" />
+            </div>
+
+            <button type="submit" id="lin">Login</button>
+
+          </div>
+        </form>
+
+      </div>
     </div>
-   
+  </div>
+
 </body>
 </html>
