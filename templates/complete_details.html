@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ActBayan — Complete Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        .file-upload-wrap {
+            border: 2px dashed var(--border-color);
+            border-radius: 11px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-main);
+        }
+        .file-upload-wrap:hover {
+            border-color: var(--red);
+            background: var(--red-light);
+        }
+        .file-upload-wrap input[type="file"] {
+            display: none;
+        }
+        .file-upload-icon {
+            font-size: 24px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .file-name-display {
+            font-size: 13px;
+            color: var(--red);
+            font-weight: 700;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast-container" id="toast-container"></div>
+
+<div class="auth-wrapper">
+
+    <div class="left-panel">
+        <div class="left-deco-dot"></div>
+        <a href="/" class="left-logo">ActBayan<span>.</span></a>
+
+        <div class="left-hero">
+        
+            <div class="left-headline">
+                Almost <em>There!</em>
+            </div>
+            <p class="left-sub">
+                Let's get to know you better. Please complete your profile details to fully access the ActBayan dashboard and start participating in Barangay Picaleon.
+            </p>
+        </div>
+
+        <div class="left-footer-text">
+            © 2026 ActBayan — Barangay Picaleon, General Mamerto Natividad
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="auth-box" style="max-width: 500px;"> <div class="form-panel active">
+                
+<form action="/complete_details" method="POST" enctype="multipart/form-data">
+                    <div class="form-title">Complete Your Details, Mr./Ms {{ u }}</div>
+                    <input type="hidden" name="reg_id" value="{{ reg_id }}">
+
+                    <p class="form-subtitle">Please fill in your correct personal information.</p>
+
+                    <div class="form-group">
+                        <label>Profile Photo (Optional)</label>
+                        <label class="file-upload-wrap">
+                            <input type="file" name="profile_photo" id="profile-photo" accept="image/*" onchange="showFileName(this)">
+                            <div class="file-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Click to upload a photo</div>
+                            <div class="file-name-display" id="file-name">No file chosen</div>
+                        </label>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fname">First Name</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" id="fname" name="fname" placeholder="Juan" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lname">Last Name</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" id="lname" name="lname" placeholder="Dela Cruz" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mname">Middle Name</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" id="mname" name="mname" placeholder="Rizal" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">Date of Birth</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-calendar-alt input-icon"></i>
+                                <input type="date" id="dob" name="dob" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="email" name="email" value="{{ email }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="tel" id="phone" name="phone" value="{{ phone }}" readonly>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address / Purok</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-map-marker-alt input-icon"></i>
+                            <select id="address" name="address" required>
+                                <option value="">Select your address...</option>
+                                <option value="Purok 1">Purok 1 — Picaleon</option>
+                                <option value="Purok 2">Purok 2 — Picaleon</option>
+                                <option value="Purok 3">Purok 3 — Picaleon</option>
+                                <option value="Purok 4">Purok 4 — Picaleon</option>
+                                <option value="Purok 5">Purok 5 — Picaleon</option>
+                                <option value="Purok 6">Purok 6 — Picaleon</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" style="margin-top: 15px;">
+                        Save & Go to Dashboard <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+ 
+    function showFileName(input) {
+        const fileNameDisplay = document.getElementById('file-name');
+        if (input.files && input.files[0]) {
+            fileNameDisplay.textContent = input.files[0].name;
+            fileNameDisplay.style.display = 'block';
+        } else {
+            fileNameDisplay.style.display = 'none';
+        }
+    }
+
+    
+    // Removed fake submit handler - now does real POST to server
+
+    // ===== TOAST NOTIFICATIONS =====
+    function showToast(msg, type = 'info') {
+        const iconMap = { success: 'fa-check-circle', info: 'fa-info-circle', error: 'fa-exclamation-circle' };
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast ' + type;
+        toast.innerHTML = '<i class="fas ' + (iconMap[type] || 'fa-info-circle') + '"></i> ' + msg;
+        container.appendChild(toast);
+        requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3500);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ActBayan — Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="auth-wrapper">
+
+    <div class="left-panel">
+        <div class="left-deco-dot"></div>
+        <a href="/" class="left-logo">ActBayan<span>.</span></a>
+
+        <div class="left-hero">
+            <div class="left-badge">
+                <i class="fas fa-shield-alt"></i> Secure Community Portal
+            </div>
+            <div class="left-headline">
+                Your Voice,<br><em>Heard</em> Here.
+            </div>
+            <p class="left-sub">
+                Register to submit concerns, view resolutions,
+                and stay updated on all news from Barangay Picaleon.
+            </p>
+        </div>
+
+        <div class="left-footer-text">
+            © 2026 ActBayan — Barangay Picaleon, General Mamerto Natividad, Nueva Ecija
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="auth-box">
+            <div class="form-title">Join ActBayan ✨</div>
+            <p class="form-subtitle">Already have an account? <a href="login">Login here</a></p>
+
+            <div class="tab-switcher">
+                <button class="tab-btn active" id="tab-email" onclick="showInput('i1')">
+                    <i class="fas fa-envelope"></i> Email Address
+                </button>
+                <button class="tab-btn" id="tab-phone" onclick="showInput('i2')">
+                    <i class="fas fa-phone"></i> Phone Number
+                </button>
+            </div>
+
+            <form id="emailForm" class="form-panel active" method="POST" action="/register">
+                
+                <div class="form-group">
+                    <label for="e">Email Address</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input id="e" type="email" name="e" placeholder="Enter your email address" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pass1">Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" name="pass" id="pass1" placeholder="Create a password" required>
+                        <i class="fas fa-eye toggle-pw" onclick="togglePw('pass1', this)"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="conpass1">Confirm Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" name="conpass" id="conpass1" placeholder="Repeat password" required>
+                        <i class="fas fa-eye toggle-pw" onclick="togglePw('conpass1', this)"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-user-plus"></i> Register with Email
+                </button>
+            </form>
+
+            <form id="phoneForm" class="form-panel" method="POST" action="/register">
+                
+                <div class="form-group">
+                    <label for="pn">Phone Number</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input id="pn" type="text" name="pn" placeholder="09XX XXX XXXX" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pass2">Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" name="pass" id="pass2" placeholder="Create a password" required>
+                        <i class="fas fa-eye toggle-pw" onclick="togglePw('pass2', this)"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="conpass2">Confirm Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" name="conpass" id="conpass2" placeholder="Repeat password" required>
+                        <i class="fas fa-eye toggle-pw" onclick="togglePw('conpass2', this)"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-user-plus"></i> Register with Phone
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== EMAIL VS PHONE TOGGLE =====
+    function showInput(type) {
+        const emailForm = document.getElementById("emailForm");
+        const phoneForm = document.getElementById("phoneForm");
+        const emailToggle = document.getElementById("tab-email");
+        const phoneToggle = document.getElementById("tab-phone");
+        const emailField = document.getElementById("e");
+        const phoneField = document.getElementById("pn");
+
+        if (type === "i1") {
+            // Show Email Form
+            emailForm.classList.add("active");
+            phoneForm.classList.remove("active");
+            emailToggle.classList.add("active");
+            phoneToggle.classList.remove("active");
+            
+            // Clear Phone data
+            phoneField.value = '';
+            phoneField.required = false;
+            emailField.required = true;
+            
+        } else if (type === "i2") {
+            // Show Phone Form
+            emailForm.classList.remove("active");
+            phoneForm.classList.add("active");
+            emailToggle.classList.remove("active");
+            phoneToggle.classList.add("active");
+            
+            // Clear Email data
+            emailField.value = '';
+            emailField.required = false;
+            phoneField.required = true;
+        }
+    }
+
+    // ===== TOGGLE PASSWORD VISIBILITY =====
+    function togglePw(id, icon) {
+        const input = document.getElementById(id);
+        const isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        icon.className = 'fas toggle-pw ' + (isText ? 'fa-eye' : 'fa-eye-slash');
+    }
+</script>
+</body>
+</html>
