@@ -23,8 +23,9 @@ def home():
 
 @app.route('/lgu', methods=['GET', 'POST'])
 def lgu():
-    if 'user_id' not in session:
+    if 'user_id' not in session or session.get('user_role') != 'lgu':
         return redirect(url_for('login'))
+
 
     account_id = session.get('user_id')
 
@@ -106,7 +107,12 @@ def dashboard():
         'dashboard.html',
         recent=all_concerns,
         ngalan=user_name,
-        user={'first_name': user_name, 'last_name': '', 'address': 'Picaleon'}
+        user={
+            'first_name': user_name,
+            'last_name': '',
+            'address': 'Picaleon',
+            'profile_photo': None
+        }
     )
 
 
@@ -172,10 +178,13 @@ def login():
                 session['user_name'] = pangalan
 
                 if role_value == 'lgu official':
+                    # IMPORTANT: `/lgu_announcements` expects session['user_role'] == 'lgu'
+                    session['user_role'] = 'lgu'
                     con.close()
                     return redirect(url_for("lgu"))
 
                 # Resident and any unknown role: dashboard
+                session['user_role'] = 'resident'
                 con.close()
                 return redirect(url_for("dashboard"))
         
@@ -198,9 +207,20 @@ def file_concern():
         fn = request.form.get("fn")
         
         category = data.get('category')
-        title = data.get('title') 
+        title = data.get('title')
+        # Template sends location text (locname)
         location = data.get('location')
         description = data.get('description')
+
+        # Optional coordinates (template currently only sends location text;
+        # if geox/geoy are missing, we try to default to 0 so location_id is not NULL)
+        geox = data.get('geox')
+        geoy = data.get('geoy')
+
+        if geox is None or str(geox).strip() == '':
+            geox = 0
+        if geoy is None or str(geoy).strip() == '':
+            geoy = 0
         
         cursor.execute("SELECT account_id FROM accounts WHERE account_id = %s", (session['user_id'],))
         user_record = cursor.fetchone()
@@ -220,10 +240,20 @@ def file_concern():
             image_file.save(filepath)
             img_url = filepath
             
+        # For file_concern: insert geolocation into `location` first,
+        # then insert report using the resulting `location_id`.
+        # Expected form fields: location (locname), geox, geoy.
+        insert_location_sql = """
+            INSERT INTO location (locname, x, y)
+            VALUES (%s, %s, %s)
+        """
+        get_location_id_sql = "SELECT MAX(location_id) FROM location"  # Get the last inserted location_id for association with report
+
         query = """
-            INSERT INTO reports (account_id, category, title, location, image_url, description, status)
+            INSERT INTO reports (account_id, category, title, location_id, image_url, description, status)
             VALUES (%s, %s, %s, %s, %s, %s, 'Pending')
         """
+
         # For fn==pc (posting feedback), do NOT insert a new report
         if fn == "pc":
             feedback = (data.get('comment') or '').strip()
@@ -237,7 +267,25 @@ def file_concern():
                 cursor.execute(comque, (account_id, report_id, feedback, datetime.now()))
 
         else:
-            cursor.execute(query, (account_id, category, title, location, img_url, description))
+            # If geolocation coordinates are provided, store them in `location`.
+            # - location variable from template is treated as locname
+            # - request.form should provide geox and geoy
+            # (fallbacks included because some browsers/templates may not send them)
+            geox = data.get('geox')
+            geoy = data.get('geoy')
+
+            location_id = None
+            # Always insert into `location` so we can always attach a non-NULL location_id.
+            # If geox/geoy were missing, we already defaulted them to 0 above.
+            cursor.execute(insert_location_sql, (location, geox, geoy))
+            cursor.execute(get_location_id_sql)
+            location_row = cursor.fetchone()
+            location_id = None
+            if location_row:
+                # cursor is dictionary=True, so fetchone() returns a dict like {"MAX(location_id)": 123}
+                location_id = location_row.get('MAX(location_id)')
+
+            cursor.execute(query, (account_id, category, title, location_id, img_url, description))
 
         con.commit()
         con.close()
@@ -423,5 +471,99 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+
+@app.route('/lgu_announcements')
+def lgu_announcements():
+    if 'user_id' not in session or session.get('user_role') != 'lgu':
+        return redirect(url_for('login'))
+    
+    con = connect_db()
+    cursor = con.cursor(dictionary=True)
+    cursor.execute("SELECT first_name, last_name, profile_photo FROM accounts WHERE account_id = %s", (session['user_id'],))
+    user_data = cursor.fetchone()
+    con.close()
+    
+    return render_template('lgu_announcements.html', user=user_data)
+
+@app.route('/barangay_map')
+def barangay_map():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    con = connect_db()
+    cursor = con.cursor(dictionary=True)
+    cursor.execute(
+        "SELECT first_name, last_name, profile_photo FROM accounts WHERE account_id = %s",
+        (session['user_id'],)
+    )
+    user_data = cursor.fetchone()
+
+    # For leaflet pins: return title + locname + x/y (location coordinates)
+    rep = """
+        SELECT r.title, l.locname, l.x, l.y
+        FROM reports r
+        JOIN location l ON r.location_id = l.location_id
+        WHERE l.x IS NOT NULL AND l.y IS NOT NULL
+        ORDER BY r.created_at DESC
+    """
+    cursor.execute(rep)
+    rloc = cursor.fetchall()
+
+    # DEBUG: verify DB data for leaflet pins
+    print('[/barangay_map] rloc rows:', len(rloc))
+    if rloc:
+        print('[/barangay_map] first rloc row:', rloc[0])
+
+    con.close()
+
+    return render_template('barangay_map.html', user=user_data, rloc=rloc)
+
+
+@app.route('/lgu_map')
+def lgu_map():
+    if 'user_id' not in session or session.get('user_role') != 'lgu':
+        return redirect(url_for('login'))
+
+    con = connect_db()
+    cursor = con.cursor(dictionary=True)
+
+    cursor.execute(
+        "SELECT first_name, last_name, profile_photo FROM accounts WHERE account_id = %s",
+        (session['user_id'],)
+    )
+    user_data = cursor.fetchone()
+
+    # For leaflet pins: return title + locname + x/y (location coordinates)
+    rep = """
+        SELECT r.title, l.locname, l.x, l.y
+        FROM reports r
+        JOIN location l ON r.location_id = l.location_id
+        WHERE l.x IS NOT NULL AND l.y IS NOT NULL
+        ORDER BY r.created_at DESC
+    """
+    cursor.execute(rep)
+    rloc = cursor.fetchall()
+
+    con.close()
+
+    return render_template('lgu_map.html', user=user_data, rloc=rloc)
+
+
+
+
+@app.route('/announcements')
+def announcements():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    con = connect_db()
+    cursor = con.cursor(dictionary=True)
+    cursor.execute("SELECT first_name, last_name, profile_photo FROM accounts WHERE account_id = %s", (session['user_id'],))
+    user_data = cursor.fetchone()
+    con.close()
+    
+    return render_template('announcements.html', user=user_data)
+
 if __name__ == '__main__':
     app.run(debug=True)
+

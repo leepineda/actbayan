@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ActBayan — Concerns</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    
+    
+    
+
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -317,6 +323,81 @@
         .modal-finp:focus { border-color: var(--primary-red); background: var(--bg-nav-card); }
         textarea.modal-finp { resize: vertical; min-height: 90px; }
 
+        /* ===== LOCATION MAP PICKER ===== */
+        /* Layout: show a full-width location input like other fields,
+           then put the map ONLY on the right side (separate from the input column). */
+        .location-grid {
+            display: grid;
+            grid-template-columns: 1fr 190px;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .loc-input-col { grid-column: 1; }
+        .loc-map-col { grid-column: 2; min-width: 190px; }
+
+
+
+        .loc-map-wrap {
+            border: 1.5px solid var(--border-color);
+            border-radius: 11px;
+            background: var(--search-bg);
+            overflow: hidden;
+        }
+        .loc-map-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .loc-map-btn {
+            border: none;
+            border-radius: 9px;
+            padding: 8px 10px;
+            background: var(--primary-red);
+            color: white;
+            cursor: pointer;
+            font-family: 'Inter';
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .loc-map-btn.secondary {
+            background: transparent;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        .loc-map-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .loc-map-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-left: auto;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 130px;
+        }
+
+        .loc-map {
+            height: 160px;
+            width: 100%;
+            cursor: crosshair;
+        }
+
+        .loc-map-selected {
+            border-color: rgba(139,0,0,0.55) !important;
+            box-shadow: 0 0 0 3px rgba(139,0,0,0.12);
+        }
+
+        /* Leaflet height helpers */
+        .leaflet-container { font-family: 'Inter', sans-serif; }
+
+
         .modal-upload-tile {
             border: 2px dashed var(--border-color); border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--search-bg); display: block;
         }
@@ -376,6 +457,42 @@
 
         .no-results-msg { display: none; text-align: center; padding: 60px 20px; background: var(--bg-nav-card); border-radius: 18px; border: 1px solid var(--border-color); }
         .no-results-msg.visible { display: block; }
+
+        /* ===== LGU PROGRESS MODAL (Resident) ===== */
+        .rp-status-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-nav-card);
+        }
+        .rp-status-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .rp-status-badge {
+            font-size: 11px;
+            font-weight: 900;
+            padding: 5px 14px;
+            border-radius: 50px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+        .rp-status-pending   { background:#fef3c7; color:#92400e; }
+        .rp-status-inprogress{ background:#dbeafe; color:#1e40af; }
+        .rp-status-resolved  { background:#dcfce7; color:#166534; }
+        .rp-status-denied    { background:#fee2e2; color:#991b1b; }
+        .rp-status-dot {
+            width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+        }
+        .rp-status-dot.pending    { background: #f59e0b; }
+        .rp-status-dot.inprogress { background: #3b82f6; }
+        .rp-status-dot.resolved   { background: #22c55e; }
+        .rp-status-dot.denied     { background: #ef4444; }
 
         /* ===== REPORT UPDATES (LGU) ===== */
         .updates-wrap {
@@ -459,18 +576,25 @@
         <a href="{{ url_for('file_concern') }}" class="sidebar-link active">
             <i class="fas fa-exclamation-circle"></i> <span>Concerns</span>
         </a>
-        <a href="#" class="sidebar-link" onclick="alert('Announcements coming soon')">
+        <a href="{{ url_for('announcements') }}" class="sidebar-link">
             <i class="fas fa-bullhorn"></i> <span>Announcements</span>
             <span class="notif-badge">3</span>
         </a>
-        <a href="#" class="sidebar-link" onclick="alert('Map view coming soon')">
+        <a href="#" class="sidebar-link" onclick="event.preventDefault(); return alert('Map view coming soon');">
             <i class="fas fa-map"></i> <span>Barangay Map</span>
+        </a>
+        <a href="#" class="sidebar-link" onclick="alert('Bayan Guide coming soon')">
+            <i class="fas fa-book"></i> <span>Bayan Guide</span>
         </a>
     </nav>
     <div class="sidebar-footer">
         <button class="theme-toggle-btn" id="theme-toggle-btn">
             <i class="fas fa-moon" id="theme-icon"></i> <span id="theme-label">Dark Mode</span>
         </button>
+        <a href="{{ url_for('logout') }}" class="theme-toggle-btn" style="text-decoration:none; color:#dc2626; display:flex; align-items:center; gap:14px; padding:12px 16px;">
+            <i class="fas fa-right-from-bracket" style="font-size:18px; width:20px; text-align:center;"></i>
+            <span>Logout</span>
+        </a>
         <div class="user-profile-btn">
             <div class="user-avatar">U</div>
             <div class="user-info">
@@ -481,12 +605,14 @@
     </div>
 </aside>
 
-<main class="main-content">
-    <div class="page-header">
+    <main class="main-content">
+        <div class="page-header">
+
         <div class="page-badge"><i class="fas fa-heart"></i> ActBayan Cares</div>
         <h1 class="page-title">CONCERNS</h1>
         <p class="page-subtitle">Concern Wall of Barangay Picaleon — Your voice shapes the community</p>
     </div>
+
 
     <div class="main-wrap">
         <div>
@@ -544,11 +670,14 @@
                         </div>
                         
                         <div class="post-footer">
-                            <button class="action-btn" onclick="toggleUpvote(this)">
+                            <button class="action-btn" data-id="{{ c.report_id }}" onclick="toggleUpvote(this)">
                                 <i class="fas fa-arrow-up"></i> <span class="upvote-count">0</span> Upvotes
                             </button>
                             <button class="action-btn" data-id="{{ c.report_id }}" onclick="toggleComments(this)">
                                 <i class="fas fa-comment"></i> <span class="comment-count">{{ feedback_counts_by_report.get(c.report_id, 0) }}</span> Comments
+                            </button>
+                            <button class="action-btn" style="margin-left: auto; color: var(--primary-red);" onclick="openResidentProgressModal('{{ c.report_id }}', '{{ c.title }}', '{{ c.status }}')">
+                                Reports Progress <i class="fas fa-share" style="transform: scaleX(-1);"></i>
                             </button>
                         </div>
 
@@ -729,8 +858,28 @@
                 </div>
                 <div class="modal-form-row">
                     <label><i class="fas fa-map-marker-alt"></i> Location / Purok</label>
-                    <input class="modal-finp" id="modal-inp-location" type="text" placeholder="e.g. Purok 3, Picaleon" oninput="mValidateStep2()">
+
+                    <div class="location-grid">
+                        <div class="loc-input-col">
+                            <input class="modal-finp" id="modal-inp-location" type="text" placeholder="e.g. Purok 3, Picaleon" oninput="mValidateStep2()">
+                        </div>
+                        <div class="loc-map-col">
+                            <div class="loc-map-wrap loc-map-selected" id="loc-map-wrap">
+                                <div class="loc-map-controls">
+                                    <button type="button" class="loc-map-btn secondary" id="btn-use-my-location" onclick="mUseMyLocation()">
+                                        <i class="fas fa-crosshairs"></i>
+                                    </button>
+                                    <div class="loc-map-hint" id="loc-map-hint">Use my location</div>
+                                </div>
+                                <div id="loc-map" class="loc-map" aria-label="Location map"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
+
                 <div class="modal-form-row">
                     <label><i class="fas fa-align-left"></i> Description</label>
                     <textarea class="modal-finp" id="modal-inp-desc" placeholder="Provide detailed information about the issue..." oninput="mValidateStep2()"></textarea>
@@ -811,6 +960,8 @@
                 <input type="hidden" name="category" id="hf-category">
                 <input type="hidden" name="title" id="hf-title">
                 <input type="hidden" name="location" id="hf-location">
+                <input type="hidden" name="geox" id="hf-geox">
+                <input type="hidden" name="geoy" id="hf-geoy">
                 <input type="hidden" name="description" id="hf-description">
                 <input type="file" name="concern_photo" id="hf-photo">
             </form>
@@ -827,8 +978,11 @@
 
 <div class="toast-container" id="toast-container"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
 <script>
     // ===== THEME =====
+
     const themeBtn = document.getElementById('theme-toggle-btn');
     const themeLabel = document.getElementById('theme-label');
     const themeIcon = document.getElementById('theme-icon');
@@ -846,7 +1000,7 @@
     });
 
     // ===== MULTI-STEP MODAL LOGIC =====
-    const mState = { cat: '', title: '', loc: '', desc: '', imgSrc: '', imgFile: null };
+    const mState = { cat: '', title: '', loc: '', desc: '', imgSrc: '', imgFile: null, geox: 0, geoy: 0 };
     let mCurStep = 1;
 
     const mCatEmojis = {
@@ -902,12 +1056,142 @@
         document.getElementById('mbtn-step1').disabled = false;
     }
 
+    let mLeaflet = { map: null, marker: null, tileLayer: null, lastSetBy: null };
+
     function mValidateStep2() {
         mState.title = document.getElementById('modal-inp-title').value.trim();
         mState.loc   = document.getElementById('modal-inp-location').value.trim();
         mState.desc  = document.getElementById('modal-inp-desc').value.trim();
         document.getElementById('mbtn-step2').disabled = !(mState.title && mState.loc && mState.desc);
     }
+
+    function mSetLocationText(text, setBy = 'map') {
+        const locInput = document.getElementById('modal-inp-location');
+        if (!locInput) return;
+        locInput.value = text || '';
+        mState.loc = locInput.value.trim();
+        mLeaflet.lastSetBy = setBy;
+        mValidateStep2();
+    }
+
+    function mSetCoords(lat, lng) {
+        mState.geox = Number(lat);
+        mState.geoy = Number(lng);
+        document.getElementById('hf-geox').value = mState.geox;
+        document.getElementById('hf-geoy').value = mState.geoy;
+    }
+
+    async function mReverseGeocode(lat, lng) {
+        // Nominatim reverse geocoding
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=18&addressdetails=1`;
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!res.ok) throw new Error('Reverse geocode failed');
+        const data = await res.json();
+
+        const a = data.address || {};
+        // Best-effort mapping to a human readable “Purok/Location”.
+        const parts = [];
+        if (a.neighbourhood) parts.push(a.neighbourhood);
+        if (a.suburb) parts.push(a.suburb);
+        if (a.road) parts.push(a.road);
+        if (a.city) parts.push(a.city);
+        if (a.town) parts.push(a.town);
+        if (a.village) parts.push(a.village);
+        if (a.county) parts.push(a.county);
+        if (a.state) parts.push(a.state);
+
+        const readable = parts.filter(Boolean).join(', ');
+        return readable || data.display_name || `Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)}`;
+    }
+
+    function mEnsureLocationMap() {
+        if (mLeaflet.map) return;
+        const mapEl = document.getElementById('loc-map');
+        if (!mapEl) return;
+
+        // Default center (fallback)
+        const defaultLat = 14.0000;
+        const defaultLng = 120.0000;
+
+        mLeaflet.map = L.map('loc-map', { zoomControl: true }).setView([defaultLat, defaultLng], 15);
+
+        // OSM tiles
+        mLeaflet.tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(mLeaflet.map);
+
+        mLeaflet.marker = L.marker([defaultLat, defaultLng]).addTo(mLeaflet.map);
+        mLeaflet.marker.setOpacity(0); // hide until chosen
+
+        mLeaflet.map.on('click', async (e) => {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            mLeaflet.marker.setLatLng([lat, lng]);
+            mLeaflet.marker.setOpacity(1);
+            mSetCoords(lat, lng);
+            showToast('Location selected.', 'fa-map-marker-alt');
+            try {
+                const txt = await mReverseGeocode(lat, lng);
+                mSetLocationText(txt, 'map-click');
+                document.getElementById('loc-map-hint').textContent = 'Selected';
+            } catch (err) {
+                mSetLocationText(`Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)}`, 'map-click');
+                document.getElementById('loc-map-hint').textContent = 'Coordinates selected';
+            }
+        });
+
+        // When modal shows, map needs to resize properly
+        setTimeout(() => {
+            try { mLeaflet.map.invalidateSize(); } catch (e) {}
+        }, 200);
+    }
+
+    function mUseMyLocation() {
+        if (!navigator.geolocation) {
+            showToast('Geolocation not supported in this browser.', 'fa-exclamation-circle');
+            return;
+        }
+
+        mEnsureLocationMap();
+
+        showToast('Getting your location...', 'fa-crosshairs');
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                if (mLeaflet.map) {
+                    mLeaflet.map.setView([lat, lng], 17);
+                    mLeaflet.marker.setLatLng([lat, lng]);
+                    mLeaflet.marker.setOpacity(1);
+                }
+
+                mSetCoords(lat, lng);
+
+                try {
+                    const txt = await mReverseGeocode(lat, lng);
+                    mSetLocationText(txt, 'geolocation');
+                    const hint = document.getElementById('loc-map-hint');
+                    if (hint) hint.textContent = 'Selected';
+                    showToast('Location added.', 'fa-check-circle');
+                } catch (err) {
+                    mSetLocationText(`Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)}`, 'geolocation');
+                    showToast('Location added (coordinates).', 'fa-check-circle');
+                }
+            },
+            (err) => {
+                showToast('Location permission denied or unavailable.', 'fa-exclamation-circle');
+                const hint = document.getElementById('loc-map-hint');
+                if (hint) hint.textContent = 'Click map to select';
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+        );
+    }
+
 
     function mPreviewFile(input) {
         if (input.files && input.files[0]) {
@@ -1095,7 +1379,7 @@
         return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    function toggleCaption(btn) {
+        function toggleCaption(btn) {
         const idx = btn.dataset.id;
         const cap = document.getElementById(`caption-${idx}`);
         if (cap.classList.contains('clamped')) {
@@ -1106,6 +1390,104 @@
             btn.textContent = 'Read more';
         }
     }
+
+    // ===== LGU RESIDENT PROGRESS MODAL =====
+    function openResidentProgressModal(reportId, title, status) {
+        const modalEl = document.getElementById('resident-progress-modal');
+        if (!modalEl) {
+            showToast('LGU progress modal not available on this page.', 'fa-info-circle');
+            return;
+        }
+
+
+        document.getElementById('rp-title').textContent = title || '';
+
+        const rawStatus = (status || 'Pending').trim();
+        const key = rawStatus.toLowerCase().replace(/\s+/g, '');
+
+        const dotEl = document.getElementById('rp-status-dot');
+        const badgeEl = document.getElementById('rp-status-badge');
+        if (dotEl) dotEl.className = 'rp-status-dot ' + key;
+        if (badgeEl) {
+            badgeEl.className = 'rp-status-badge rp-status-' + key;
+            badgeEl.textContent = rawStatus;
+        }
+
+        const timeline = document.getElementById('rp-timeline');
+        if (timeline) {
+            timeline.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading LGU responses...</div>';
+        }
+
+        document.getElementById('resident-progress-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        fetch(`/api/report_updates/${reportId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!Array.isArray(data) || data.length === 0) {
+                    if (timeline) {
+                        timeline.innerHTML = `
+                            <div style="text-align:center; padding:30px; background:var(--bg-nav-card); border-radius:12px; border:1px solid var(--border-color);">
+                                <i class="fas fa-clock" style="font-size:30px; color:var(--text-muted); opacity:0.3; margin-bottom:10px;"></i>
+                                <h4 style="margin:0 0 5px 0;">No updates yet</h4>
+                                <p style="font-size:12px; color:var(--text-muted); margin:0;">The LGU has not posted any progress documentation for this report yet.</p>
+                            </div>`;
+                    }
+                    return;
+                }
+
+                function cleanStr(val) {
+                    if (!val) return '';
+                    return String(val)
+                        .replace(/^bytearray\(b['"]/, '')
+                        .replace(/['"]\)$/, '')
+                        .replace(/^b['"]/, '')
+                        .replace(/['"]$/, '');
+                }
+
+                if (!timeline) return;
+                timeline.innerHTML = '';
+
+                data.forEach(update => {
+                    const updateText = cleanStr(update.update_text);
+                    const imageUrl = cleanStr(update.image_url);
+
+                    let imgHtml = '';
+                    if (imageUrl) {
+                        imgHtml = `<div style="width:100%; height:200px; background:var(--border-color); border-radius:8px; overflow:hidden; margin-bottom:12px;">
+                            <img src="/${imageUrl}" style="width:100%; height:100%; object-fit:cover; cursor:zoom-in;" onclick="openLightbox('/${imageUrl}', 'LGU Documentation')">
+                        </div>`;
+                    }
+
+                    timeline.innerHTML += `
+                        <div style="background:var(--bg-nav-card); border-radius:12px; border:1px solid var(--border-color); padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="width:36px; height:36px; border-radius:50%; background:#1e3a8a; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px;">
+                                        LGU
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:800; font-size:13px; color:var(--text-main);">Barangay Official</div>
+                                        <div style="font-size:11px; color:var(--text-muted);">${update.created_at_formatted || ''}</div>
+                                    </div>
+                                </div>
+                                <span style="background:rgba(220, 38, 38, 0.1); color:#dc2626; font-size:10px; font-weight:800; padding:4px 10px; border-radius:50px; text-transform:uppercase;">Status Update</span>
+                            </div>
+
+                            ${imgHtml}
+
+                            <p style="font-size:13px; color:var(--text-main); margin:0; line-height:1.5;">${updateText}</p>
+                        </div>`;
+                });
+            })
+            .catch(err => {
+                console.error('Progress load error:', err);
+                if (timeline) {
+                    timeline.innerHTML = '<div style="color:#dc2626; text-align:center; padding:20px;">Failed to load progress. Please try again.</div>';
+                }
+            });
+    }
+
 
     // ===== SEARCH FILTER =====
     const searchInput = document.getElementById('sidebar-search-input');

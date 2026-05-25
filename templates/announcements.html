@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ActBayan — Announcements</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+        :root {
+            --bg-main: #f4f6f8; --bg-nav-card: #ffffff; --text-main: #202124;
+            --text-muted: #5f6368; --border-color: #e0e0e0; --icon-hover: #f1f3f4;
+            --search-bg: #f1f3f4; --primary-red: #8b0000; --primary-red-hover: #a30000;
+            --red-light: rgba(139,0,0,0.08);
+        }
+        body.dark-mode {
+            --bg-main: #121212; --bg-nav-card: #1e1e1e; --text-main: #e8eaed;
+            --text-muted: #9aa0a6; --border-color: #333333; --icon-hover: #2a2a2a;
+            --search-bg: #2a2a2a; --red-light: rgba(139,0,0,0.15);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); transition: background-color 0.3s, color 0.3s; display: flex; }
+
+        .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; background-color: var(--bg-nav-card); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px 20px; z-index: 1000; transition: background-color 0.3s, border-color 0.3s; }
+        .sidebar-logo { font-weight: 900; font-size: 26px; color: var(--text-main); text-decoration: none; margin-bottom: 30px; padding: 0 10px; display: block; }
+        .sidebar-logo span { color: var(--primary-red); }
+        .sidebar-search { display: flex; align-items: center; background-color: var(--search-bg); border-radius: 12px; padding: 10px 14px; gap: 8px; margin-bottom: 24px; border: 1.5px solid transparent; transition: border-color 0.2s; }
+        .sidebar-search:focus-within { border-color: var(--primary-red); }
+        .sidebar-search i { color: var(--text-muted); font-size: 13px; }
+        .sidebar-search input { background: transparent; border: none; outline: none; font-size: 13px; color: var(--text-main); width: 100%; font-family: 'Inter'; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .sidebar-link { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; position: relative; }
+        .sidebar-link i { font-size: 18px; width: 20px; text-align: center; }
+        .sidebar-link:hover { background-color: var(--icon-hover); color: var(--primary-red); }
+        .sidebar-link.active { background-color: var(--primary-red); color: white; }
+        .notif-badge { background-color: #cc0000; color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 50px; margin-left: auto; }
+        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .theme-toggle-btn { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; color: var(--text-muted); cursor: pointer; font-weight: 600; font-size: 14px; background: transparent; border: none; font-family: 'Inter'; width: 100%; text-align: left; transition: all 0.2s; }
+        .theme-toggle-btn:hover { background-color: var(--icon-hover); color: var(--text-main); }
+        .user-profile-btn { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; cursor: pointer; transition: background 0.2s; border: 1px solid var(--border-color); text-decoration: none; }
+        .user-profile-btn:hover { background-color: var(--icon-hover); }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-red), #c0392b); color: white; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px; overflow: hidden;}
+        .user-info { display: flex; flex-direction: column; overflow: hidden; }
+        .user-name { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: 11px; color: var(--text-muted); }
+
+        .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; }
+        .page-header { background: linear-gradient(135deg, #6b0000 0%, #8b0000 50%, #b91c1c 100%); padding: 40px 0 32px; position: relative; overflow: hidden; }
+        .page-header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 220px; height: 220px; border-radius: 50%; border: 36px solid rgba(255,255,255,0.06); pointer-events: none; }
+        .page-header-inner { max-width: 1000px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .page-header-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.22); border-radius: 50px; padding: 4px 14px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: white; margin-bottom: 10px; }
+        .page-header-title { font-size: 34px; font-weight: 900; color: white; letter-spacing: -0.5px; margin: 0 0 6px; }
+        .page-header-sub { font-size: 13px; color: rgba(255,255,255,0.72); font-weight: 500; margin: 0; }
+
+        .filter-bar { background-color: var(--bg-nav-card); border-bottom: 1px solid var(--border-color); padding: 14px 0; position: sticky; top: 0; z-index: 100; }
+        .filter-inner { max-width: 1000px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .filter-chip { padding: 7px 16px; border-radius: 50px; border: 1.5px solid var(--border-color); background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter'; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .filter-chip:hover { border-color: var(--primary-red); color: var(--primary-red); }
+        .filter-chip.active { background: var(--primary-red); border-color: var(--primary-red); color: white; }
+        .filter-search { margin-left: auto; display: flex; align-items: center; background: var(--search-bg); border-radius: 10px; padding: 8px 14px; gap: 8px; border: 1.5px solid transparent; transition: border-color 0.2s; }
+        .filter-search:focus-within { border-color: var(--primary-red); }
+        .filter-search input { background: transparent; border: none; outline: none; font-size: 13px; color: var(--text-main); font-family: 'Inter'; width: 180px; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 36px 40px; }
+
+        .featured-card { background: var(--bg-nav-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--border-color); display: grid; grid-template-columns: 1fr 340px; margin-bottom: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
+        .featured-card:hover { transform: translateY(-4px); box-shadow: 0 12px 35px rgba(0,0,0,0.1); }
+        .featured-body { padding: 32px; display: flex; flex-direction: column; justify-content: space-between; }
+        .featured-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--red-light); color: var(--primary-red); padding: 5px 12px; border-radius: 50px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; width: fit-content; }
+        .featured-title { font-size: 24px; font-weight: 900; color: var(--text-main); line-height: 1.25; margin: 0 0 12px; letter-spacing: -0.3px; }
+        .featured-excerpt { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin: 0 0 20px; }
+        .featured-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .meta-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .meta-item i { color: var(--primary-red); font-size: 11px; }
+        .featured-img { background: linear-gradient(135deg, #8b0000, #c0392b); display: flex; align-items: center; justify-content: center; font-size: 80px; min-height: 240px; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .section-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0; }
+        .section-count { font-size: 11px; font-weight: 800; color: var(--text-muted); background: var(--search-bg); padding: 4px 12px; border-radius: 50px; }
+        .announcements-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .ann-card { background: var(--bg-nav-card); border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; cursor: pointer; transition: transform 0.25s, box-shadow 0.25s; }
+        .ann-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.08); }
+        .ann-card-img { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+        .ann-card-body { padding: 16px; }
+        .ann-card-tag { display: inline-flex; align-items: center; gap: 5px; background: var(--red-light); color: var(--primary-red); padding: 3px 10px; border-radius: 50px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .ann-card-title { font-size: 14px; font-weight: 800; color: var(--text-main); margin: 0 0 8px; line-height: 1.4; }
+        .ann-card-excerpt { font-size: 12px; color: var(--text-muted); line-height: 1.55; margin: 0 0 14px; }
+        .ann-card-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .ann-card-meta span { font-size: 11px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .ann-card-meta i { color: var(--primary-red); font-size: 10px; }
+
+        /* MODAL */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal-backdrop.open { opacity: 1; visibility: visible; }
+        .modal { background: var(--bg-nav-card); border-radius: 20px; max-width: 560px; width: 100%; transform: translateY(20px) scale(0.97); transition: transform 0.35s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 28px 80px rgba(0,0,0,0.28); max-height: 92vh; overflow-y: auto; }
+        .modal-backdrop.open .modal { transform: translateY(0) scale(1); }
+        .modal-head { background: linear-gradient(135deg, #5a0000 0%, #8b0000 55%, #b91c1c 100%); padding: 22px 24px 20px; position: relative; overflow: hidden; display: flex; align-items: flex-start; justify-content: space-between; border-radius: 20px 20px 0 0; }
+        .modal-close-btn { background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.2); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; flex-shrink: 0; transition: background 0.2s; }
+        .modal-head-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.22); border-radius: 50px; padding: 4px 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: white; margin-bottom: 8px; }
+        .modal-head-title { font-size: 20px; font-weight: 900; color: white; letter-spacing: -0.3px; line-height: 1.2; margin: 0; }
+        .modal-body { padding: 24px; }
+        .modal-meta-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+        .modal-meta-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .modal-meta-item i { color: var(--primary-red); font-size: 11px; }
+        .modal-content-text { font-size: 14px; color: var(--text-main); line-height: 1.75; }
+        .modal-content-text p { margin: 0 0 14px; }
+
+        @media (max-width: 900px) { .announcements-grid { grid-template-columns: 1fr 1fr; } .featured-card { grid-template-columns: 1fr; } .featured-img { min-height: 160px; } }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: 70px; top: auto; bottom: 0; flex-direction: row; padding: 0; border-right: none; border-top: 1px solid var(--border-color); }
+            .sidebar-logo, .sidebar-search, .sidebar-footer { display: none; }
+            .sidebar-menu { flex-direction: row; justify-content: space-around; width: 100%; gap: 0; }
+            .sidebar-link { flex-direction: column; gap: 4px; padding: 10px; font-size: 10px; border-radius: 0; width: 20%; justify-content: center; }
+            .sidebar-link i { font-size: 20px; }
+            .main-content { margin-left: 0; margin-bottom: 70px; }
+            .page-header-inner, .filter-inner, .container { padding-left: 20px; padding-right: 20px; }
+            .announcements-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+{% set fname = (user.first_name|string).replace("bytearray(b'", "").replace("b'", "").replace("')", "").replace("'", "") if user and user.first_name else 'User' %}
+{% set lname = (user.last_name|string).replace("bytearray(b'", "").replace("b'", "").replace("')", "").replace("'", "") if user and user.last_name else '' %}
+{% set addr = (user.address|string).replace("bytearray(b'", "").replace("b'", "").replace("')", "").replace("'", "") if user and user.address else 'Picaleon' %}
+
+<div class="modal-backdrop" id="ann-modal">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="modal-head-deco"></div>
+            <div>
+                <div class="modal-head-badge" id="modal-tag">📢 General</div>
+                <div class="modal-head-title" id="modal-title">Announcement Title</div>
+            </div>
+            <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-meta-row">
+                <div class="modal-meta-item"><i class="fas fa-calendar-alt"></i> <span id="modal-date">—</span></div>
+                <div class="modal-meta-item"><i class="fas fa-user"></i> <span id="modal-author">Barangay Picaleon</span></div>
+                <div class="modal-meta-item"><i class="fas fa-eye"></i> <span id="modal-views">—</span></div>
+            </div>
+            <div class="modal-content-text" id="modal-content"></div>
+        </div>
+    </div>
+</div>
+
+<aside class="sidebar">
+    <a href="#" class="sidebar-logo">ActBayan<span>.</span></a>
+    <div class="sidebar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search concerns...">
+    </div>
+   <nav class="sidebar-menu">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('file_concern') }}" class="sidebar-link {% if request.endpoint == 'file_concern' %}active{% endif %}">
+            <i class="fas fa-exclamation-circle"></i> <span>Concerns</span>
+        </a>
+        <a href="{{ url_for('announcements') }}" class="sidebar-link {% if request.endpoint == 'announcements' %}active{% endif %}">
+            <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+            <span class="notif-badge">3</span>
+        </a>
+        <a href="{{ url_for('barangay_map') }}" class="sidebar-link {% if request.endpoint == 'barangay_map' %}active{% endif %}">
+            <i class="fas fa-map"></i> <span>Barangay Map</span>
+        </a>
+        <a href="#" class="sidebar-link {% if request.endpoint == 'bayan_guide' %}active{% endif %}">
+            <i class="fas fa-book"></i> <span>Bayan Guide</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="theme-toggle-btn" onclick="toggleDark()">
+            <i class="fas fa-moon" id="theme-icon"></i> <span id="theme-label">Dark Mode</span>
+        </button>
+
+        <a href="{{ url_for('logout') }}" class="theme-toggle-btn" style="text-decoration:none; color:#dc2626; display:flex; align-items:center; gap:14px; padding:12px 16px;">
+            <i class="fas fa-right-from-bracket" style="font-size:18px; width:20px; text-align:center;"></i>
+            <span>Logout</span>
+        </a>
+
+        <a href="#" class="user-profile-btn" style="text-decoration: none;">
+            <div class="user-avatar">
+                {% if user and user.profile_photo %}
+                    {% set raw_path = user.profile_photo | string %}
+                    {% set clean_path = raw_path.replace("bytearray(b'", "").replace("b'", "").replace("')", "").replace("'", "").replace("static/", "") %}
+                    <img src="{{ url_for('static', filename=clean_path) }}" alt="DP" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                {% else %}
+                    {{ fname[:1] | upper }}
+                {% endif %}
+            </div>
+            <div class="user-info">
+                <span class="user-name">{{ fname }} {{ lname }}</span>
+                <span class="user-role">Resident • {{ addr }}</span>
+            </div>
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="page-header-left">
+                <div class="page-header-badge"><i class="fas fa-bullhorn"></i> Official Announcements</div>
+                <h1 class="page-header-title">Announcements</h1>
+                <p class="page-header-sub">Stay updated with the latest news from Barangay Picaleon</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <div class="filter-inner">
+            <button class="filter-chip active" onclick="filterAnn('all', this)"><i class="fas fa-th"></i> All</button>
+            <button class="filter-chip" onclick="filterAnn('health', this)"><i class="fas fa-heart"></i> Health</button>
+            <button class="filter-chip" onclick="filterAnn('infrastructure', this)"><i class="fas fa-hard-hat"></i> Infrastructure</button>
+            <button class="filter-chip" onclick="filterAnn('events', this)"><i class="fas fa-calendar"></i> Events</button>
+            <button class="filter-chip" onclick="filterAnn('safety', this)"><i class="fas fa-shield-alt"></i> Safety</button>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search announcements..." id="search-input" oninput="searchAnn()">
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="featured-card" onclick="openModal('🏥 Health', 'Free Medical Mission — May 15, 2026', 'May 10, 2026', 'Barangay Health Worker', '342 views', `<p>The Barangay Picaleon Health Center, in coordination with the Rural Health Unit of General Mamerto Natividad, is pleased to announce a <strong>Free Medical Mission</strong> on <strong>May 15, 2026</strong> from 8:00 AM to 4:00 PM at the Barangay Multi-Purpose Hall.</p><p>Services available include: free consultation, blood pressure monitoring, blood sugar screening, dental check-up, eye examination, and distribution of free medicines.</p><p>All residents of Barangay Picaleon are encouraged to attend. Bring your Barangay ID or any valid government-issued ID. Priority will be given to senior citizens, persons with disabilities, and pregnant women.</p><p>For inquiries, contact the Barangay Health Center at (044) 123-4567.</p>`)">
+            <div class="featured-body">
+                <div>
+                    <div class="featured-tag"><i class="fas fa-star"></i> Featured</div>
+                    <h2 class="featured-title">Free Medical Mission — May 15, 2026</h2>
+                    <p class="featured-excerpt">The Barangay Picaleon Health Center is hosting a free medical mission open to all residents. Services include consultation, blood pressure monitoring, dental check-up, and distribution of free medicines at the Multi-Purpose Hall.</p>
+                </div>
+                <div class="featured-meta">
+                    <div class="meta-item"><i class="fas fa-calendar-alt"></i> May 10, 2026</div>
+                    <div class="meta-item"><i class="fas fa-user"></i> Barangay Health Worker</div>
+                    <div class="meta-item"><i class="fas fa-eye"></i> 342 views</div>
+                </div>
+            </div>
+            <div class="featured-img">🏥</div>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">All Announcements</h2>
+            <span class="section-count" id="ann-count">6 Posts</span>
+        </div>
+
+        <div class="announcements-grid" id="ann-grid">
+            </div>
+    </div>
+</main>
+
+<script>
+const announcements = [
+    { cat: 'infrastructure', emoji: '🛣️', tag: '🛣️ Infrastructure', title: 'Road Rehabilitation — Purok 3 to 5', excerpt: 'DPWH road rehabilitation project starts June 1. Expect traffic re-routing along the main barangay road for approximately 3 weeks.', date: 'May 8, 2026', author: 'Barangay Engineer', views: '218 views', content: `<p>The Department of Public Works and Highways (DPWH) in coordination with Barangay Picaleon will commence road rehabilitation works along the main road from Purok 3 to Purok 5 starting <strong>June 1, 2026</strong>.</p><p>The project is expected to last approximately 3 weeks. Residents are advised to use alternative routes during the construction period. Traffic enforcers will be deployed to manage vehicle flow.</p><p>Inconvenience is regretted. For concerns, contact the Barangay Hall at (044) 987-6543.</p>` },
+    { cat: 'events', emoji: '🎉', tag: '🎉 Events', title: 'Barangay Fiesta — June 24, 2026', excerpt: 'Join us in celebrating the Barangay Picaleon Fiesta! Festivities include a street parade, cultural dance competition, and evening program.', date: 'May 7, 2026', author: 'Barangay Council', views: '501 views', content: `<p>Barangay Picaleon proudly celebrates its annual <strong>Barangay Fiesta</strong> on <strong>June 24, 2026</strong>!</p><p>Activities include: morning mass at the barangay chapel, street parade at 9:00 AM, cultural dance competition at 2:00 PM, and a grand evening program starting 7:00 PM featuring local performers.</p><p>All residents and guests are welcome. Food stalls and games will be available throughout the day. Let us celebrate our community with joy and unity!</p>` },
+    { cat: 'safety', emoji: '🚨', tag: '🚨 Safety', title: 'Typhoon Preparedness Advisory', excerpt: 'PAGASA forecasts possible typhoon entry in early June. All residents are advised to prepare emergency kits and identify evacuation routes.', date: 'May 6, 2026', author: 'BDRRMC', views: '403 views', content: `<p>The Barangay Disaster Risk Reduction and Management Committee (BDRRMC) issues this advisory in light of PAGASA forecasts of possible typhoon entry by early June 2026.</p><p>Residents are advised to: prepare emergency go-bags with essentials (water, food, medicines, documents), identify the nearest evacuation center, and monitor official PAGASA and NDRRMC updates.</p><p>Evacuation centers in Barangay Picaleon: Multi-Purpose Hall (Purok 3) and Elementary School Gymnasium (Purok 5). For emergencies, call the Barangay Emergency Hotline: 09XX-XXX-XXXX.</p>` },
+    { cat: 'health', emoji: '💉', tag: '🏥 Health', title: 'Rabies Vaccination for Pets — May 20', excerpt: 'Free anti-rabies vaccination for dogs and cats. Bring your pets to the Barangay Multi-Purpose Hall on May 20, 2026 from 8 AM to 12 NN.', date: 'May 5, 2026', author: 'Barangay Health Worker', views: '176 views', content: `<p>The Barangay Picaleon Health Center, in partnership with the Municipal Agriculture Office, will conduct a <strong>Free Anti-Rabies Vaccination</strong> for dogs and cats on <strong>May 20, 2026</strong> from 8:00 AM to 12:00 NN at the Barangay Multi-Purpose Hall.</p><p>Pet owners are requested to bring their pets on a leash or in a secure cage. Please bring your pet's vaccination record if available. This is a free service for all Picaleon residents.</p>` },
+    { cat: 'events', emoji: '📚', tag: '📚 Events', title: 'Barangay Scholarship Applications Open', excerpt: 'Qualified student residents may apply for the Barangay Picaleon Scholarship. Deadline of submission is June 5, 2026 at the Barangay Hall.', date: 'May 4, 2026', author: 'Barangay Secretary', views: '290 views', content: `<p>Barangay Picaleon announces the opening of <strong>Scholarship Applications</strong> for Academic Year 2026–2027. Eligible applicants must be a bonafide resident of Barangay Picaleon, enrolled in college or vocational course, and have a general average of 85% or above.</p><p>Requirements: Barangay ID, Certificate of Enrollment, Report Card, and 2x2 photos. Submit all requirements at the Barangay Hall on or before <strong>June 5, 2026</strong>.</p>` },
+    { cat: 'infrastructure', emoji: '💧', tag: '🔧 Infrastructure', title: 'Scheduled Water Interruption — May 14', excerpt: 'MNWD announces scheduled water service interruption on May 14 from 8 AM to 5 PM for pipeline maintenance in Purok 1 and 2.', date: 'May 3, 2026', author: 'MNWD', views: '155 views', content: `<p>The Municipal Waterworks and Development Division (MNWD) announces a <strong>scheduled water service interruption</strong> on <strong>May 14, 2026</strong> from 8:00 AM to 5:00 PM.</p><p>Affected areas: Purok 1 and Purok 2. The interruption is necessary for routine pipeline maintenance and repair. Residents are advised to store enough water for their daily needs.</p><p>Normal water service will resume by 5:00 PM. We apologize for any inconvenience.</p>` },
+];
+
+let currentFilter = 'all';
+
+function renderCards(data) {
+    const grid = document.getElementById('ann-grid');
+    document.getElementById('ann-count').textContent = data.length + ' Posts';
+    if (data.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-weight:600;">No announcements found.</div>';
+        return;
+    }
+    grid.innerHTML = data.map(a => `
+        <div class="ann-card" onclick="openModal('${a.tag}', '${a.title}', '${a.date}', '${a.author}', '${a.views}', \`${a.content.replace(/`/g,'')}\`)">
+            <div class="ann-card-img" style="background: linear-gradient(135deg, #8b0000, #c0392b);">${a.emoji}</div>
+            <div class="ann-card-body">
+                <div class="ann-card-tag">${a.tag}</div>
+                <div class="ann-card-title">${a.title}</div>
+                <div class="ann-card-excerpt">${a.excerpt}</div>
+                <div class="ann-card-meta">
+                    <span><i class="fas fa-calendar-alt"></i>${a.date}</span>
+                    <span><i class="fas fa-eye"></i>${a.views}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterAnn(cat, el) {
+    currentFilter = cat;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    applyFilters();
+}
+
+function searchAnn() { applyFilters(); }
+
+function applyFilters() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    let filtered = announcements;
+    if (currentFilter !== 'all') filtered = filtered.filter(a => a.cat === currentFilter);
+    if (q) filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || a.excerpt.toLowerCase().includes(q));
+    renderCards(filtered);
+}
+
+function openModal(tag, title, date, author, views, content) {
+    document.getElementById('modal-tag').textContent = tag;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-date').textContent = date;
+    document.getElementById('modal-author').textContent = author;
+    document.getElementById('modal-views').textContent = views;
+    document.getElementById('modal-content').innerHTML = content;
+    document.getElementById('ann-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('ann-modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('ann-modal').addEventListener('click', function(e) { if(e.target === this) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+function toggleDark() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    document.getElementById('theme-label').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+}
+if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+renderCards(announcements);
+</script>
+</body>
+</html>
