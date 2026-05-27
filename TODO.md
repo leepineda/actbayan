@@ -1,6 +1,7 @@
-- [x] Inspect existing barangay_map leaflet implementation
-- [x] Add report pins on barangay_map using `rloc` (DB: reports.title + location.locname + location.x/y)
-- [x] Update `/barangay_map` route in app.py to return rloc data for pins
-- [x] Ensure template uses `rloc|tojson` and binds popup with report title + location
-- [ ] Verify in browser that pins appear and popup appears on hover/click
+- [x] Inspect current `activities()` route and related SQL queries in `app.py`
+- [x] Implement unified “activities” list sorted by datetime descending (reports.created_at, report_update.submitted_at, feedbacks.uploaded_at)
+- [x] Update `templates/activities.html` with Jinja table rendering from `activities`
+- [ ] Verify `/activities` renders correctly and newest items appear first
+
+
 

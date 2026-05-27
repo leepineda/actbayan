@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Activities</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+    th { background: #f5f5f5; }
+    .muted { color: #666; font-size: 0.9em; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <h2>Activities (Newest First)</h2>
+
+  {% if not activities or activities|length == 0 %}
+    <p class="muted">No activities found.</p>
+  {% else %}
+    <table>
+      <thead>
+        <tr>
+          <th>Date/Time</th>
+          <th>Type</th>
+          <th>Title</th>
+          <th>Fullname</th>
+          <th>Description/Feedback</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for act in activities %}
+          <tr>
+            <td>{{ act.dt }}</td>
+            <td><span class="badge">{{ act.type }}</span></td>
+            <td>{{ act.title or '-' }}</td>
+            <td>{{ act.fullname or '-' }}</td>
+            <td>{{ act.text or '-' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</body>
+</html>
+

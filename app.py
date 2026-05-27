@@ -15,8 +15,101 @@ def connect_db():
         password="",
         database="actbayan"
     )
+    
+@app.route('/admin')
+def admin():
+   if 'user_id' not in session or session.get('user_role') != "admin":
+       return redirect(url_for("login"))
+
+   return render_template("admin.html")
 
 
+@app.route('/users')
+def users():
+    if 'user_id' not in session or session.get('user_role') != 'admin':
+        return redirect(url_for('login'))
+
+    con = connect_db()
+    cursor = con.cursor(dictionary=True)
+
+    # If your DB schema differs, adjust this query.
+    # Example: accounts table has account_id, first_name, last_name
+    cursor.execute("SELECT account_id, first_name, last_name FROM accounts ORDER BY account_id DESC")
+    rows = cursor.fetchall()
+    con.close()
+
+    return render_template('users.html', users=rows)
+
+@app.route('/activities')
+def activities():
+    if 'user_id' not in session or session.get('user_role') != 'admin':
+        return redirect(url_for('login'))
+
+    con = connect_db()
+    cursor = con.cursor(dictionary=True)
+
+    activities = []
+
+    # 1) Reports created
+    cursor.execute(
+        """
+        SELECT
+            r.created_at AS dt,
+            'report' AS type,
+            r.title AS title,
+            CONCAT(a.first_name, ' ', a.last_name) AS fullname,
+            NULL AS text
+        FROM reports r
+        JOIN accounts a ON r.account_id = a.account_id
+        """
+    )
+    activities.extend(cursor.fetchall())
+
+    # 2) Report updates
+    cursor.execute(
+        """
+        SELECT
+            rp.submitted_at AS dt,
+            'update' AS type,
+            r.title AS title,
+            CONCAT(a.first_name, ' ', a.last_name) AS fullname,
+            rp.description AS text
+        FROM report_update rp
+        JOIN reports r ON rp.report_id = r.report_id
+        JOIN accounts a ON rp.account_id = a.account_id
+        """
+    )
+    activities.extend(cursor.fetchall())
+
+    # 3) Feedback uploads
+    cursor.execute(
+        """
+        SELECT
+            f.uploaded_at AS dt,
+            'feedback' AS type,
+            r.title AS title,
+            CONCAT(a.first_name, ' ', a.last_name) AS fullname,
+            f.feedback AS text
+        FROM feedbacks f
+        JOIN reports r ON f.report_id = r.report_id
+        JOIN accounts a ON f.account_id = a.account_id
+        """
+    )
+    activities.extend(cursor.fetchall())
+
+    con.close()
+
+    # Sort descending by datetime
+    activities.sort(key=lambda x: x.get('dt') or datetime.min, reverse=True)
+
+    # Format dt for template
+    for a in activities:
+        dt = a.get('dt')
+        a['dt'] = dt.strftime('%Y-%m-%d %H:%M:%S') if dt else ''
+
+    return render_template('activities.html', activities=activities)
+    
+    
 @app.route('/')
 def home():
     return redirect(url_for('login'))
@@ -182,11 +275,16 @@ def login():
                     session['user_role'] = 'lgu'
                     con.close()
                     return redirect(url_for("lgu"))
-
-                # Resident and any unknown role: dashboard
+                elif role_value == "admin":
+                    session['user_role'] = 'admin'
+                    con.close()
+                    return redirect(url_for("admin"))
+                
                 session['user_role'] = 'resident'
                 con.close()
                 return redirect(url_for("dashboard"))
+            
+
         
         con.close()
     return render_template('login.html', error="Invalid credentials")
